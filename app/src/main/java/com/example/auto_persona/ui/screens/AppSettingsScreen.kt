@@ -22,44 +22,26 @@ fun AppSettingsScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val appSets = state.saveData.data.settings
+    val appSets by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.settings } }
+    if (appSets == null) return
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("应用设置") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            IntSliderRow(
-                label = "背景音乐音量",
-                value = appSets.bgmVolume,
-                onValueChange = { viewModel.updateBgmVolume(it) },
-                valueRange = 0..100
-            )
-            IntSliderRow(
-                label = "语音音量",
-                value = appSets.voiceVolume,
-                onValueChange = { viewModel.updateVoiceVolume(it) },
-                valueRange = 0..100
-            )
-            SwitchRow(label = "静音", checked = appSets.isMuted, onCheckedChange = { viewModel.updateIsMuted(it) })
-            SwitchRow(label = "TTS已启用", checked = appSets.ttsEnabled, onCheckedChange = { viewModel.updateTtsEnabled(it) })
-            SwitchRow(label = "预设回复已启用", checked = appSets.presetRepliesEnabled, onCheckedChange = { viewModel.updatePresetRepliesEnabled(it) })
+            IntSliderRow("背景音乐音量", appSets!!.bgmVolume, { viewModel.updateBgmVolume(it) }, 0..100)
+            IntSliderRow("语音音量", appSets!!.voiceVolume, { viewModel.updateVoiceVolume(it) }, 0..100)
+            SwitchRow("静音", appSets!!.isMuted, { viewModel.updateIsMuted(it) })
+            SwitchRow("TTS已启用", appSets!!.ttsEnabled, { viewModel.updateTtsEnabled(it) })
+            SwitchRow("预设回复已启用", appSets!!.presetRepliesEnabled, { viewModel.updatePresetRepliesEnabled(it) })
         }
     }
 }

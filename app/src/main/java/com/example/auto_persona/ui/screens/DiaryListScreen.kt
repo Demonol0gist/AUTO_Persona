@@ -26,43 +26,32 @@ fun DiaryListScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val diary = state.saveData.data.diary
+    val diary by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.diary ?: emptyList() } }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("日记 (${diary.size} 条)") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                viewModel.addDiaryEntry(DiaryEntry(diaryId = UUID.randomUUID().toString(), mode = "Custom"))
-            }) {
+            FloatingActionButton(onClick = { viewModel.addDiaryEntry(DiaryEntry(diaryId = UUID.randomUUID().toString(), mode = "Custom")) }) {
                 Icon(Icons.Default.Add, "添加条目")
             }
         }
     ) { padding ->
         if (diary.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Box(Modifier.fillMaxSize().padding(padding), contentAlignment = androidx.compose.ui.Alignment.Center) {
                 Text("暂无日记，点击 + 添加", style = MaterialTheme.typography.bodyLarge)
             }
         } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                itemsIndexed(diary) { index, entry ->
-                    Card(modifier = Modifier.fillMaxWidth(), onClick = { navController.navigate(Routes.diaryDetail(index)) }) {
-                        Column(modifier = Modifier.padding(12.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Column(modifier = Modifier.weight(1f)) {
+            LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                itemsIndexed(diary, key = { _, e -> e.diaryId }) { index, entry ->
+                    Card(onClick = { navController.navigate(Routes.diaryDetail(index)) }, modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(12.dp)) {
+                            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Column(Modifier.weight(1f)) {
                                     Text("${entry.date} ${entry.time}", style = MaterialTheme.typography.labelMedium)
                                     Text(entry.mode, style = MaterialTheme.typography.titleSmall)
                                 }

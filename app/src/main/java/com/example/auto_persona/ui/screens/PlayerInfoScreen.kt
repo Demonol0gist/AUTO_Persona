@@ -23,8 +23,9 @@ fun PlayerInfoScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val pi = state.saveData.data.gameData.playerInfo
+    val playerInfo by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.playerInfo } }
+    val gender by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.gender ?: "" } }
+    if (playerInfo == null) return
 
     Scaffold(
         topBar = {
@@ -39,50 +40,17 @@ fun PlayerInfoScreen(
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            TextField(
-                label = "姓名",
-                value = pi.name,
-                onValueChange = { viewModel.updatePlayerName(it) }
-            )
-            TextField(
-                label = "生日",
-                value = pi.birthday,
-                onValueChange = { viewModel.updatePlayerBirthday(it) }
-            )
-            TextField(
-                label = "身份",
-                value = pi.identity,
-                onValueChange = { viewModel.updatePlayerIdentity(it) }
-            )
-            SwitchRow(
-                label = "已领取",
-                checked = pi.hasCollected,
-                onCheckedChange = { viewModel.updatePlayerHasCollected(it) }
-            )
+            TextField("姓名", playerInfo!!.name, { viewModel.updatePlayerName(it) })
+            TextField("生日", playerInfo!!.birthday, { viewModel.updatePlayerBirthday(it) })
+            TextField("身份", playerInfo!!.identity, { viewModel.updatePlayerIdentity(it) })
+            SwitchRow("已领取", playerInfo!!.hasCollected, { viewModel.updatePlayerHasCollected(it) })
             SectionHeader("性别")
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                FilterChip(
-                    selected = state.saveData.data.gameData.gender == "brother",
-                    onClick = { viewModel.updateGender("brother") },
-                    label = { Text("哥哥 (brother)") },
-                    modifier = Modifier.weight(1f)
-                )
-                FilterChip(
-                    selected = state.saveData.data.gameData.gender == "sister",
-                    onClick = { viewModel.updateGender("sister") },
-                    label = { Text("妹妹 (sister)") },
-                    modifier = Modifier.weight(1f)
-                )
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                FilterChip(gender == "brother", { viewModel.updateGender("brother") }, { Text("哥哥 (brother)") }, Modifier.weight(1f))
+                FilterChip(gender == "sister", { viewModel.updateGender("sister") }, { Text("妹妹 (sister)") }, Modifier.weight(1f))
             }
         }
     }

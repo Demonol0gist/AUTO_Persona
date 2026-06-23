@@ -1,8 +1,10 @@
 package com.example.auto_persona.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class PromptsMap(
     @SerialName("sister-null") val sisterNull: PromptData? = null,
@@ -17,6 +19,7 @@ data class PromptsMap(
     @SerialName("sister-kemonomimi-cat") val sisterKemonomimiCat: PromptData? = null
 )
 
+@Immutable
 @Serializable
 data class PromptData(
     val spec: String = "chara_card_v2",
@@ -24,6 +27,7 @@ data class PromptData(
     val data: PromptInnerData = PromptInnerData()
 )
 
+@Immutable
 @Serializable
 data class PromptInnerData(
     val name: String = "Yuki",

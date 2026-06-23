@@ -21,41 +21,31 @@ fun TravelScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val ts = state.saveData.data.gameData.travelSystem
+    val ts by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.travelSystem } }
+    if (ts == null) return
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("旅行系统") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            SwitchRow("旅行模式", ts.isTravelMode, { viewModel.updateTravelMode(it) })
-            SwitchRow("已显示夜间对话", ts.hasShownNightDialogue, { viewModel.updateHasShownNightDialogue(it) })
-
-            TextField(label = "当前目的地", value = ts.currentDestination ?: "", onValueChange = { viewModel.updateCurrentDestination(it.ifEmpty { null }) })
-            TextField(label = "目的地城市名", value = ts.destinationCityName ?: "", onValueChange = { viewModel.updateDestinationCityName(it.ifEmpty { null }) })
-            TextField(label = "当前城市", value = ts.currentCity ?: "", onValueChange = { viewModel.updateCurrentCity(it.ifEmpty { null }) })
-            TextField(label = "旅行状态", value = ts.travelState ?: "", onValueChange = { viewModel.updateTravelState(it.ifEmpty { null }) })
-            TextField(label = "旅行开始时间", value = ts.travelStartTime ?: "", onValueChange = { viewModel.updateTravelStartTime(it.ifEmpty { null }) })
-            TextField(label = "旅行结束时间", value = ts.travelEndTime ?: "", onValueChange = { viewModel.updateTravelEndTime(it.ifEmpty { null }) })
-
-            ChipGroup(label = "已解锁目的地", items = ts.unlockedDestinations, onItemsChange = { viewModel.updateUnlockedDestinations(it) })
-            ChipGroup(label = "当前景点", items = ts.currentSpots, onItemsChange = { viewModel.updateCurrentSpots(it) })
+            SwitchRow("旅行模式", ts!!.isTravelMode, { viewModel.updateTravelMode(it) })
+            SwitchRow("已显示夜间对话", ts!!.hasShownNightDialogue, { viewModel.updateHasShownNightDialogue(it) })
+            TextField("当前目的地", ts!!.currentDestination ?: "", { viewModel.updateCurrentDestination(it.ifEmpty { null }) })
+            TextField("目的地城市名", ts!!.destinationCityName ?: "", { viewModel.updateDestinationCityName(it.ifEmpty { null }) })
+            TextField("当前城市", ts!!.currentCity ?: "", { viewModel.updateCurrentCity(it.ifEmpty { null }) })
+            TextField("旅行状态", ts!!.travelState ?: "", { viewModel.updateTravelState(it.ifEmpty { null }) })
+            TextField("旅行开始时间", ts!!.travelStartTime ?: "", { viewModel.updateTravelStartTime(it.ifEmpty { null }) })
+            TextField("旅行结束时间", ts!!.travelEndTime ?: "", { viewModel.updateTravelEndTime(it.ifEmpty { null }) })
+            ChipGroup("已解锁目的地", ts!!.unlockedDestinations, { viewModel.updateUnlockedDestinations(it) })
+            ChipGroup("当前景点", ts!!.currentSpots, { viewModel.updateCurrentSpots(it) })
         }
     }
 }

@@ -23,42 +23,26 @@ fun TimeSystemScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val ts = state.saveData.data.gameData.timeSystem
+    val ts by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.timeSystem } }
+    if (ts == null) return
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("时间系统") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            NumberField("当前天数", ts.currentDay, { viewModel.updateCurrentDay(it) })
-            NumberField("每日行动次数", ts.dailyActions, { viewModel.updateDailyActions(it) })
-            NumberField("已用行动次数", ts.actionsUsed, { viewModel.updateActionsUsed(it) })
-            TextField(
-                label = "游戏开始日期",
-                value = ts.gameStartDate,
-                onValueChange = { viewModel.updateGameStartDate(it) }
-            )
-            ChipGroup(
-                label = "特殊事件",
-                items = ts.specialEvents,
-                onItemsChange = { viewModel.updateTimeSpecialEvents(it) }
-            )
+            NumberField("当前天数", ts!!.currentDay, { viewModel.updateCurrentDay(it) })
+            NumberField("每日行动次数", ts!!.dailyActions, { viewModel.updateDailyActions(it) })
+            NumberField("已用行动次数", ts!!.actionsUsed, { viewModel.updateActionsUsed(it) })
+            TextField("游戏开始日期", ts!!.gameStartDate, { viewModel.updateGameStartDate(it) })
+            ChipGroup("特殊事件", ts!!.specialEvents, { viewModel.updateTimeSpecialEvents(it) })
         }
     }
 }

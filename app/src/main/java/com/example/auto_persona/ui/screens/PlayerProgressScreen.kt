@@ -21,33 +21,27 @@ fun PlayerProgressScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val gd = state.saveData.data.gameData
+    val coins by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.playerProgress?.coins ?: 0 } }
+    val qLevel by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.questSystem?.unlockedLevel ?: 0 } }
+    val gLevel by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.globalLevelSystem?.globalLevel ?: 1 } }
+    val gExp by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.globalLevelSystem?.globalExp ?: 0 } }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("玩家进度") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            NumberField(label = "金币", value = gd.playerProgress.coins, onValueChange = { viewModel.updateCoins(it) })
-            NumberField(label = "任务解锁等级", value = gd.questSystem.unlockedLevel, onValueChange = { viewModel.updateUnlockedLevel(it) })
-            NumberField(label = "全局等级", value = gd.globalLevelSystem.globalLevel, onValueChange = { viewModel.updateGlobalLevel(it) })
-            NumberField(label = "全局经验", value = gd.globalLevelSystem.globalExp, onValueChange = { viewModel.updateGlobalExp(it) })
+            NumberField("金币", coins, { viewModel.updateCoins(it) })
+            NumberField("任务解锁等级", qLevel, { viewModel.updateUnlockedLevel(it) })
+            NumberField("全局等级", gLevel, { viewModel.updateGlobalLevel(it) })
+            NumberField("全局经验", gExp, { viewModel.updateGlobalExp(it) })
         }
     }
 }

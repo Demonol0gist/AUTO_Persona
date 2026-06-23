@@ -1,7 +1,9 @@
 package com.example.auto_persona.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class GameData(
     val version: String = "1.0.0",
@@ -23,6 +25,7 @@ data class GameData(
     val kemonomimiReminderCount: Int = 0
 )
 
+@Immutable
 @Serializable
 data class PlayerInfo(
     val name: String = "",
@@ -31,12 +34,14 @@ data class PlayerInfo(
     val hasCollected: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class CharacterStats(
     val affection: Int = 0,
     val trust: Int = 0
 )
 
+@Immutable
 @Serializable
 data class CharacterSystemData(
     val stats: CharacterStats = CharacterStats(),
@@ -57,6 +62,7 @@ data class CharacterSystemData(
     val outfit19Unlocked: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class CharacterInfo(
     val name: String = "YUKI",
@@ -66,22 +72,26 @@ data class CharacterInfo(
     val currentMood: String = "normal"
 )
 
+@Immutable
 @Serializable
 data class PlayerProgress(
     val coins: Int = 0
 )
 
+@Immutable
 @Serializable
 data class QuestSystem(
     val unlockedLevel: Int = 0
 )
 
+@Immutable
 @Serializable
 data class GlobalLevelSystem(
     val globalLevel: Int = 1,
     val globalExp: Int = 0
 )
 
+@Immutable
 @Serializable
 data class TimeSystem(
     val currentDay: Int = 1,
@@ -91,12 +101,14 @@ data class TimeSystem(
     val gameStartDate: String = ""
 )
 
+@Immutable
 @Serializable
 data class Inventory(
     val items: List<InventoryItem> = emptyList(),
     val equipment: Equipment = Equipment()
 )
 
+@Immutable
 @Serializable
 data class InventoryItem(
     val id: String = "",
@@ -105,6 +117,7 @@ data class InventoryItem(
     val type: String = ""
 )
 
+@Immutable
 @Serializable
 data class Equipment(
     val weapon: String? = null,
@@ -112,6 +125,7 @@ data class Equipment(
     val accessory: String? = null
 )
 
+@Immutable
 @Serializable
 data class GameSettings(
     val musicVolume: Double = 0.7,
@@ -119,6 +133,7 @@ data class GameSettings(
     val autoSave: Boolean = true
 )
 
+@Immutable
 @Serializable
 data class DateHistory(
     val custom: Int = 0,
@@ -130,6 +145,7 @@ data class DateHistory(
     val nightpath: Int = 0
 )
 
+@Immutable
 @Serializable
 data class TravelSystem(
     val hasShownNightDialogue: Boolean = false,
@@ -145,6 +161,7 @@ data class TravelSystem(
     val travelEndTime: String? = null
 )
 
+@Immutable
 @Serializable
 data class ShopSystem(
     val purchases: OutfitPurchases = OutfitPurchases(),
@@ -153,6 +170,7 @@ data class ShopSystem(
     val currentTab: String = "travel"
 )
 
+@Immutable
 @Serializable
 data class OutfitPurchases(
     val outfit1: Boolean = false, val outfit2: Boolean = false,
@@ -167,6 +185,7 @@ data class OutfitPurchases(
     val outfit19: Boolean = false, val outfit20: Boolean = false
 )
 
+@Immutable
 @Serializable
 data class GiftInventory(
     val gift1: Int = 0, val gift2: Int = 0, val gift3: Int = 0,

@@ -1,8 +1,6 @@
 package com.example.auto_persona.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -25,35 +23,22 @@ fun ShopScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val shop = state.saveData.data.gameData.shopSystem
+    val shop by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.shopSystem } }
+    if (shop == null) return
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("商店") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         }
     ) { padding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+        LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(1) { SectionHeader("服装购买状态") }
-
             items(1) {
-                val purchases = shop.purchases
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
+                val purchases = shop!!.purchases
+                FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     for (i in 1..20) {
                         val checked = when (i) {
                             1 -> purchases.outfit1; 2 -> purchases.outfit2; 3 -> purchases.outfit3
@@ -88,11 +73,9 @@ fun ShopScreen(
                     }
                 }
             }
-
             items(1) { SectionHeader("礼物库存") }
-
             items(1) {
-                val gifts = shop.giftInventory
+                val gifts = shop!!.giftInventory
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     NumberField("礼物 1", gifts.gift1, { viewModel.updateGiftInventory(gifts.copy(gift1 = it)) })
                     NumberField("礼物 2", gifts.gift2, { viewModel.updateGiftInventory(gifts.copy(gift2 = it)) })
@@ -108,11 +91,8 @@ fun ShopScreen(
                     NumberField("礼物 12", gifts.gift12, { viewModel.updateGiftInventory(gifts.copy(gift12 = it)) })
                 }
             }
-
             items(1) { SectionHeader("旅行库存") }
-
-            val travelInv = shop.travelInventory
-            val travelEntries = travelInv.entries.toList()
+            val travelEntries = shop!!.travelInventory.entries.toList()
             if (travelEntries.isEmpty()) {
                 items(1) { Text("无旅行库存物品", style = MaterialTheme.typography.bodyMedium) }
             } else {
@@ -123,22 +103,14 @@ fun ShopScreen(
                         value = currentValue,
                         onValueChange = { newVal ->
                             currentValue = newVal
-                            viewModel.updateTravelInventory(travelInv.toMutableMap().apply { put(key, newVal) })
+                            viewModel.updateTravelInventory(shop!!.travelInventory.toMutableMap().apply { put(key, newVal) })
                         }
                     )
                 }
             }
-
             items(1) { SectionHeader("当前标签页") }
-            items(1) {
-                TextField(
-                    label = "商店标签页",
-                    value = shop.currentTab,
-                    onValueChange = { viewModel.updateShopTab(it) }
-                )
-            }
-
-            items(1) { Spacer(modifier = Modifier.height(16.dp)) }
+            items(1) { TextField("商店标签页", shop!!.currentTab, { viewModel.updateShopTab(it) }) }
+            items(1) { Spacer(Modifier.height(16.dp)) }
         }
     }
 }

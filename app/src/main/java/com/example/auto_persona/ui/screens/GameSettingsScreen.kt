@@ -22,48 +22,24 @@ fun GameSettingsScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val gs = state.saveData.data.gameData.settings
+    val gs by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.settings } }
+    if (gs == null) return
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("游戏设置") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         }
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            SliderRow(
-                label = "音乐音量",
-                value = gs.musicVolume.toFloat(),
-                onValueChange = { viewModel.updateMusicVolume(it.toDouble()) },
-                valueRange = 0f..1f,
-                displayValue = "%.1f".format(gs.musicVolume)
-            )
-            SliderRow(
-                label = "音效音量",
-                value = gs.soundVolume.toFloat(),
-                onValueChange = { viewModel.updateSoundVolume(it.toDouble()) },
-                valueRange = 0f..1f,
-                displayValue = "%.1f".format(gs.soundVolume)
-            )
-            SwitchRow(
-                label = "自动存档",
-                checked = gs.autoSave,
-                onCheckedChange = { viewModel.updateAutoSave(it) }
-            )
+            SliderRow("音乐音量", gs!!.musicVolume.toFloat(), { viewModel.updateMusicVolume(it.toDouble()) }, valueRange = 0f..1f, displayValue = "%.1f".format(gs!!.musicVolume))
+            SliderRow("音效音量", gs!!.soundVolume.toFloat(), { viewModel.updateSoundVolume(it.toDouble()) }, valueRange = 0f..1f, displayValue = "%.1f".format(gs!!.soundVolume))
+            SwitchRow("自动存档", gs!!.autoSave, { viewModel.updateAutoSave(it) })
         }
     }
 }

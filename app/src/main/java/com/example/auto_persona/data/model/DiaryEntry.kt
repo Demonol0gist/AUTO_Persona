@@ -1,7 +1,9 @@
 package com.example.auto_persona.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class DiaryEntry(
     val timestamp: String = "",

@@ -1,7 +1,9 @@
 package com.example.auto_persona.data.model
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class SaveData(
     val version: String = "1.0.0",
@@ -11,6 +13,7 @@ data class SaveData(
     val data: GameContainer = GameContainer()
 )
 
+@Immutable
 @Serializable
 data class GameContainer(
     val gameData: GameData = GameData(),

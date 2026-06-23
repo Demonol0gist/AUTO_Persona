@@ -27,24 +27,18 @@ fun InventoryScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val state = saveState as? SaveState.Loaded ?: return
-    val inventory = state.saveData.data.gameData.inventory
+    val inventory by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.gameData?.inventory } }
+    if (inventory == null) return
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("背包") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回")
-                    }
-                }
+                navigationIcon = { IconButton(onClick = { navController.popBackStack() }) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "返回") } }
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {
-                viewModel.updateItems(inventory.items + InventoryItem())
-            }) {
+            FloatingActionButton(onClick = { viewModel.updateItems(inventory!!.items + InventoryItem()) }) {
                 Icon(Icons.Default.Add, "添加物品")
             }
         }
@@ -54,60 +48,34 @@ fun InventoryScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(1) { SectionHeader("物品 (${inventory.items.size})") }
-
-            if (inventory.items.isEmpty()) {
-                items(1) {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Text("暂无物品，点击 + 添加", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
+            items(1) { SectionHeader("物品 (${inventory!!.items.size})") }
+            if (inventory!!.items.isEmpty()) {
+                items(1) { Card(Modifier.fillMaxWidth()) { Text("暂无物品，点击 + 添加", Modifier.padding(16.dp), style = MaterialTheme.typography.bodyMedium) } }
             }
-
-            itemsIndexed(inventory.items) { index, item ->
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            itemsIndexed(inventory!!.items, key = { _, item -> item.id.hashCode() + item.name.hashCode() }) { index, item ->
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                             Text("物品 ${index + 1}", style = MaterialTheme.typography.titleSmall)
-                            IconButton(onClick = {
-                                viewModel.updateItems(inventory.items.toMutableList().apply { removeAt(index) })
-                            }) {
+                            IconButton(onClick = { viewModel.updateItems(inventory!!.items.toMutableList().apply { removeAt(index) }) }) {
                                 Icon(Icons.Default.Delete, "删除", tint = MaterialTheme.colorScheme.error)
                             }
                         }
-                        TextField(label = "ID", value = item.id, onValueChange = { newId ->
-                            val newList = inventory.items.toMutableList()
-                            newList[index] = item.copy(id = newId)
-                            viewModel.updateItems(newList)
-                        })
-                        TextField(label = "名称", value = item.name, onValueChange = { newName ->
-                            val newList = inventory.items.toMutableList()
-                            newList[index] = item.copy(name = newName)
-                            viewModel.updateItems(newList)
-                        })
-                        NumberField(label = "数量", value = item.quantity, onValueChange = { qty ->
-                            val newList = inventory.items.toMutableList()
-                            newList[index] = item.copy(quantity = qty)
-                            viewModel.updateItems(newList)
-                        })
-                        TextField(label = "类型", value = item.type, onValueChange = { newType ->
-                            val newList = inventory.items.toMutableList()
-                            newList[index] = item.copy(type = newType)
-                            viewModel.updateItems(newList)
-                        })
+                        TextField("ID", item.id, { val l = inventory!!.items.toMutableList(); l[index] = item.copy(id = it); viewModel.updateItems(l) })
+                        TextField("名称", item.name, { val l = inventory!!.items.toMutableList(); l[index] = item.copy(name = it); viewModel.updateItems(l) })
+                        NumberField("数量", item.quantity, { val l = inventory!!.items.toMutableList(); l[index] = item.copy(quantity = it); viewModel.updateItems(l) })
+                        TextField("类型", item.type, { val l = inventory!!.items.toMutableList(); l[index] = item.copy(type = it); viewModel.updateItems(l) })
                     }
                 }
             }
-
             items(1) { SectionHeader("装备") }
             items(1) {
-                val eq = inventory.equipment
-                TextField(label = "武器", value = eq.weapon ?: "", onValueChange = { viewModel.updateWeapon(it.ifEmpty { null }) })
-                TextField(label = "防具", value = eq.armor ?: "", onValueChange = { viewModel.updateArmor(it.ifEmpty { null }) })
-                TextField(label = "饰品", value = eq.accessory ?: "", onValueChange = { viewModel.updateAccessory(it.ifEmpty { null }) })
+                val eq = inventory!!.equipment
+                TextField("武器", eq.weapon ?: "", { viewModel.updateWeapon(it.ifEmpty { null }) })
+                TextField("防具", eq.armor ?: "", { viewModel.updateArmor(it.ifEmpty { null }) })
+                TextField("饰品", eq.accessory ?: "", { viewModel.updateAccessory(it.ifEmpty { null }) })
             }
-
-            items(1) { Spacer(modifier = Modifier.height(80.dp)) }
+            items(1) { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
