@@ -12,6 +12,7 @@ class SaveRepository {
         coerceInputValues = true
         isLenient = true
         prettyPrint = true
+        encodeDefaults = true
     }
 
     fun loadFromAssets(context: Context, filename: String = "存档.json"): Result<SaveData> {
