@@ -256,6 +256,30 @@ class SaveEditorViewModel(application: Application) : AndroidViewModel(applicati
             container.copy(prompts = newPrompts)
         }
     }
+    fun appendToAllCreatorNotes(text: String) {
+        updateContainer { container ->
+            val p = container.prompts
+            container.copy(prompts = PromptsMap(
+                sisterNull = appendToPrompt(p.sisterNull, text),
+                sisterVerylow = appendToPrompt(p.sisterVerylow, text),
+                sisterLow = appendToPrompt(p.sisterLow, text),
+                sisterMedium = appendToPrompt(p.sisterMedium, text),
+                sisterHigh = appendToPrompt(p.sisterHigh, text),
+                sisterDilei = appendToPrompt(p.sisterDilei, text),
+                sisterKindergarten = appendToPrompt(p.sisterKindergarten, text),
+                sisterTutor = appendToPrompt(p.sisterTutor, text),
+                sisterKemonomimi = appendToPrompt(p.sisterKemonomimi, text),
+                sisterKemonomimiCat = appendToPrompt(p.sisterKemonomimiCat, text)
+            ))
+        }
+    }
+
+    private fun appendToPrompt(prompt: PromptData?, text: String): PromptData? {
+        if (prompt == null) return null
+        val oldNotes = prompt.data.creatorNotes
+        if (oldNotes.contains(text.trim())) return prompt
+        return prompt.copy(data = prompt.data.copy(creatorNotes = "$oldNotes\n$text"))
+    }
     // endregion
 
     private inline fun updateGameData(crossinline block: (GameData) -> GameData) {
