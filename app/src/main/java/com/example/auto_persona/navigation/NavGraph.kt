@@ -28,6 +28,8 @@ object Routes {
     const val PROMPTS_LIST = "prompts_list"
     const val PROMPT_EDIT = "prompt_edit/{promptKey}"
     const val RAW_JSON = "raw_json"
+    const val AI_CONFIG = "ai_config"
+    const val AI_PERSONA_CREATE = "ai_persona_create"
 
     fun diaryDetail(index: Int) = "diary_detail/$index"
     fun promptEdit(key: String) = "prompt_edit/$key"
@@ -114,6 +116,14 @@ fun AppNavGraph(
 
         composable(Routes.RAW_JSON) {
             RawJsonScreen(navController = navController, viewModel = viewModel)
+        }
+
+        composable(Routes.AI_CONFIG) {
+            AiConfigScreen(navController = navController)
+        }
+
+        composable(Routes.AI_PERSONA_CREATE) {
+            AiPersonaCreateScreen(navController = navController, saveViewModel = viewModel)
         }
     }
 }

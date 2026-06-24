@@ -91,6 +91,9 @@ fun HomeScreen(
                     items(1) { Text("内容", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp)) }
                     items(1) { ClickableCard("日记", "${state.saveData.data.diary.size} 条记录") { navController.navigate(Routes.DIARY_LIST) } }
                     items(1) { ClickableCard("人格提示词", "9种人格变体") { navController.navigate(Routes.PROMPTS_LIST) } }
+                    items(1) { Text("AI 工具", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 8.dp)) }
+                    items(1) { ClickableCard("AI 模型配置", "设置 API Key 和模型") { navController.navigate(Routes.AI_CONFIG) } }
+                    items(1) { ClickableCard("AI 生成人设", "用 AI 自动创建角色人格") { navController.navigate(Routes.AI_PERSONA_CREATE) } }
                 }
             }
         }
