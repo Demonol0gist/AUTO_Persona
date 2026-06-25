@@ -40,10 +40,11 @@ public class Main extends JFrame {
     private JRadioButton rbBrother, rbSister;
     // AI fields
     private JTextField tfApiKey, tfBaseUrl, tfModel;
-    private JTextArea taUserInput, taAiResult;
+    private JTextArea taUserInput, taAiResult, taExtraInput;
     private JComboBox<String> cmbAiSlot;
-    private JButton btnGenerate;
+    private JButton btnGenerate, btnRegenerate, btnReset;
     private JLabel lblAiStatus;
+    private String lastAiInput = "";
     private final AiConfig aiConfig = new AiConfig();
     private final AiService aiService = new AiService();
     private String generatedJson;
@@ -529,9 +530,14 @@ public class Main extends JFrame {
         gbc = gbc(); int row = 0;
 
         centerPanel.add(new JLabel("角色描述:"), gbc0(row, 0));
-        taUserInput = new JTextArea(4, 30);
+        taUserInput = new JTextArea(3, 30);
         taUserInput.setLineWrap(true);
         centerPanel.add(new JScrollPane(taUserInput), gbc1(row++, 1));
+
+        centerPanel.add(new JLabel("追加要求 (可选):"), gbc0(row, 0));
+        taExtraInput = new JTextArea(2, 30);
+        taExtraInput.setLineWrap(true);
+        centerPanel.add(new JScrollPane(taExtraInput), gbc1(row++, 1));
 
         String[] slotKeys = {"sister-null", "sister-verylow", "sister-low", "sister-medium",
             "sister-high", "sister-dilei", "sister-kindergarten", "sister-tutor",
@@ -542,8 +548,10 @@ public class Main extends JFrame {
 
         var btnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         btnGenerate = new JButton("生成人设");
+        btnRegenerate = new JButton("追加要求重新生成");
+        btnReset = new JButton("重新开始");
         var btnApply = new JButton("应用到槽位");
-        btnRow.add(btnGenerate); btnRow.add(btnApply);
+        btnRow.add(btnGenerate); btnRow.add(btnRegenerate); btnRow.add(btnReset); btnRow.add(btnApply);
         centerPanel.add(btnRow, gbc1(row++, 1));
 
         lblAiStatus = new JLabel(" ");
@@ -558,26 +566,15 @@ public class Main extends JFrame {
         p.add(centerPanel, BorderLayout.CENTER);
 
         // Actions
-        btnGenerate.addActionListener(e -> {
-            btnGenerate.setEnabled(false);
-            lblAiStatus.setText("生成中...");
-            new Thread(() -> {
-                try {
-                    syncConfig();
-                    String result = aiService.generatePersona(aiConfig, taUserInput.getText());
-                    SwingUtilities.invokeLater(() -> {
-                        generatedJson = result;
-                        taAiResult.setText(result);
-                        lblAiStatus.setText("生成成功!");
-                        btnGenerate.setEnabled(true);
-                    });
-                } catch (Exception ex) {
-                    SwingUtilities.invokeLater(() -> {
-                        lblAiStatus.setText("错误: " + ex.getMessage());
-                        btnGenerate.setEnabled(true);
-                    });
-                }
-            }).start();
+        btnGenerate.addActionListener(e -> doGenerate());
+        btnRegenerate.addActionListener(e -> doRegenerate());
+        btnReset.addActionListener(e -> {
+            lastAiInput = "";
+            taUserInput.setText("");
+            taExtraInput.setText("");
+            taAiResult.setText("");
+            generatedJson = null;
+            lblAiStatus.setText(" ");
         });
 
         btnApply.addActionListener(e -> {
@@ -599,6 +596,45 @@ public class Main extends JFrame {
         });
 
         return p;
+    }
+
+    private void doGenerate() {
+        if (taUserInput.getText().isBlank()) return;
+        lastAiInput = taUserInput.getText();
+        callAi(lastAiInput);
+    }
+
+    private void doRegenerate() {
+        if (lastAiInput.isBlank()) return;
+        String extra = taExtraInput.getText();
+        String fullInput = extra.isBlank() ? lastAiInput : lastAiInput + "\n追加要求: " + extra;
+        taExtraInput.setText("");
+        callAi(fullInput);
+    }
+
+    private void callAi(String input) {
+        btnGenerate.setEnabled(false);
+        btnRegenerate.setEnabled(false);
+        lblAiStatus.setText("生成中...");
+        new Thread(() -> {
+            try {
+                syncConfig();
+                String result = aiService.generatePersona(aiConfig, input);
+                SwingUtilities.invokeLater(() -> {
+                    generatedJson = result;
+                    taAiResult.setText(result);
+                    lblAiStatus.setText("生成成功!");
+                    btnGenerate.setEnabled(true);
+                    btnRegenerate.setEnabled(true);
+                });
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() -> {
+                    lblAiStatus.setText("错误: " + ex.getMessage());
+                    btnGenerate.setEnabled(true);
+                    btnRegenerate.setEnabled(true);
+                });
+            }
+        }).start();
     }
 
     private void syncConfig() {
