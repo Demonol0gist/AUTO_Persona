@@ -87,9 +87,14 @@ public class Main extends JFrame {
         miSave.addActionListener(e -> saveFile());
         var miSaveAs = new JMenuItem("另存为...");
         miSaveAs.addActionListener(e -> saveFileAs());
+        var miImport = new JMenuItem("导入 JSON...");
+        miImport.addActionListener(e -> openFile());
+        var miExport = new JMenuItem("导出 JSON...");
+        miExport.addActionListener(e -> saveFileAs());
         var miLoadTemplate = new JMenuItem("加载模板存档");
         miLoadTemplate.addActionListener(e -> loadTemplate());
         fileMenu.add(miOpen); fileMenu.add(miSave); fileMenu.add(miSaveAs);
+        fileMenu.addSeparator(); fileMenu.add(miImport); fileMenu.add(miExport);
         fileMenu.addSeparator(); fileMenu.add(miLoadTemplate);
         menuBar.add(fileMenu);
         setJMenuBar(menuBar);
@@ -433,7 +438,25 @@ public class Main extends JFrame {
                 refreshDiaryList();
             }
         });
-        btnPanel.add(btnSaveDiary);
+        var btnAddDiary = new JButton("新增日记");
+        btnAddDiary.addActionListener(e -> {
+            if (saveData == null) return;
+            var entry = new DiaryEntry();
+            entry.diaryId = java.util.UUID.randomUUID().toString();
+            entry.mode = "Custom";
+            saveData.data.diary.add(entry);
+            refreshDiaryList();
+            listDiary.setSelectedIndex(saveData.data.diary.size() - 1);
+        });
+        var btnDelDiary = new JButton("删除日记");
+        btnDelDiary.addActionListener(e -> {
+            int idx = listDiary.getSelectedIndex();
+            if (saveData != null && idx >= 0 && idx < saveData.data.diary.size()) {
+                saveData.data.diary.remove(idx);
+                refreshDiaryList();
+            }
+        });
+        btnPanel.add(btnSaveDiary); btnPanel.add(btnAddDiary); btnPanel.add(btnDelDiary);
         editPanel.add(btnPanel, gbc1(row, 1));
         p.add(editPanel, BorderLayout.SOUTH);
         return p;
