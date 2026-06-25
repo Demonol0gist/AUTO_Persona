@@ -1,7 +1,12 @@
 package com.auto_persona.pc.ai;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -9,11 +14,34 @@ import okhttp3.RequestBody;
 
 public class AiService {
 
-    private final OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
-            .build();
+    private static OkHttpClient createClient() {
+        try {
+            TrustManager[] trustAll = new TrustManager[] {
+                new X509TrustManager() {
+                    public void checkClientTrusted(X509Certificate[] c, String a) {}
+                    public void checkServerTrusted(X509Certificate[] c, String a) {}
+                    public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                }
+            };
+            SSLContext sslCtx = SSLContext.getInstance("TLSv1.2");
+            sslCtx.init(null, trustAll, new SecureRandom());
+            return new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .sslSocketFactory(sslCtx.getSocketFactory(), (X509TrustManager) trustAll[0])
+                    .hostnameVerifier((host, session) -> true)
+                    .build();
+        } catch (Exception e) {
+            return new OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(120, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .build();
+        }
+    }
+
+    private final OkHttpClient client = createClient();
 
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
