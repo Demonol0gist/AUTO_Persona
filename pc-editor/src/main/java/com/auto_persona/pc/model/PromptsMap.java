@@ -1,6 +1,7 @@
 package com.auto_persona.pc.model;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PromptsMap {
@@ -28,6 +29,6 @@ public class PromptsMap {
         public String scenario = "";
         @SerializedName("creator_notes") public String creatorNotes = "";
         @SerializedName("first_mes") public String firstMes;
-        public List<String> tags = List.of();
+        public List<String> tags = new ArrayList<>();
     }
 }

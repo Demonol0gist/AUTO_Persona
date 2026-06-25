@@ -1,5 +1,7 @@
 package com.auto_persona.pc.model;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,8 +60,8 @@ public class GameData {
     public static class CharacterInfo {
         public String name = "YUKI";
         public String personality = "";
-        public List<String> favoriteGifts = List.of();
-        public List<String> specialEvents = List.of();
+        public List<String> favoriteGifts = new ArrayList<>();
+        public List<String> specialEvents = new ArrayList<>();
         public String currentMood = "normal";
     }
 
@@ -80,12 +82,12 @@ public class GameData {
         public int currentDay = 1;
         public int dailyActions = 99999;
         public int actionsUsed;
-        public List<String> specialEvents = List.of();
+        public List<String> specialEvents = new ArrayList<>();
         public String gameStartDate = "";
     }
 
     public static class Inventory {
-        public List<InventoryItem> items = List.of();
+        public List<InventoryItem> items = new ArrayList<>();
         public Equipment equipment = new Equipment();
     }
 
@@ -114,9 +116,9 @@ public class GameData {
 
     public static class TravelSystem {
         public boolean hasShownNightDialogue;
-        public Map<String, String> travelHistory = Map.of();
-        public List<String> unlockedDestinations = List.of();
-        public List<String> currentSpots = List.of();
+        public Map<String, String> travelHistory = new HashMap<>();
+        public List<String> unlockedDestinations = new ArrayList<>();
+        public List<String> currentSpots = new ArrayList<>();
         public String travelState, currentDestination, destinationCityName, currentCity;
         public boolean isTravelMode;
         public String travelStartTime, travelEndTime;
@@ -125,7 +127,7 @@ public class GameData {
     public static class ShopSystem {
         public OutfitPurchases purchases = new OutfitPurchases();
         public GiftInventory giftInventory = new GiftInventory();
-        public Map<String, Integer> travelInventory = Map.of();
+        public Map<String, Integer> travelInventory = new HashMap<>();
         public String currentTab = "travel";
     }
 

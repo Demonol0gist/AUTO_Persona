@@ -1,6 +1,7 @@
 package com.auto_persona.pc.model;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SaveData {
@@ -12,7 +13,7 @@ public class SaveData {
 
     public static class GameContainer {
         public GameData gameData = new GameData();
-        public List<DiaryEntry> diary = List.of();
+        public List<DiaryEntry> diary = new ArrayList<>();
         public AppSettings settings = new AppSettings();
         public PromptsMap prompts = new PromptsMap();
     }
