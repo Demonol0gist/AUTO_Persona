@@ -1,5 +1,8 @@
 package com.auto_persona.pc.ai;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -90,18 +93,31 @@ public class AiService {
     }
 
     private String extractJsonFromResponse(String body) {
-        int start = body.indexOf("\"content\":\"") + 11;
-        int end = body.indexOf("\"", start);
-        if (start < 11 || end < 0) return extractJsonBraces(body);
-        String content = body.substring(start, end)
-                .replace("\\n", "\n").replace("\\\"", "\"").replace("\\\\", "\\");
-        return extractJsonBraces(content);
+        try {
+            // Properly parse the API response JSON
+            Gson gson = new Gson();
+            JsonObject resp = gson.fromJson(body, JsonObject.class);
+            JsonArray choices = resp.getAsJsonArray("choices");
+            if (choices == null || choices.size() == 0) return extractJsonBraces(body);
+            JsonObject msg = choices.get(0).getAsJsonObject().getAsJsonObject("message");
+            if (msg == null) return extractJsonBraces(body);
+            String content = msg.get("content").getAsString();
+            if (content == null) return extractJsonBraces(body);
+            return extractJsonBraces(content);
+        } catch (Exception e) {
+            return extractJsonBraces(body);
+        }
     }
 
     private String extractJsonBraces(String text) {
         int start = text.indexOf('{');
         int end = text.lastIndexOf('}');
         if (start >= 0 && end > start) return text.substring(start, end + 1);
+        // Try removing markdown code block markers
+        String cleaned = text.replace("```json", "").replace("```", "").trim();
+        start = cleaned.indexOf('{');
+        end = cleaned.lastIndexOf('}');
+        if (start >= 0 && end > start) return cleaned.substring(start, end + 1);
         return text;
     }
 
