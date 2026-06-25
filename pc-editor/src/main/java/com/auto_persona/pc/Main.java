@@ -9,10 +9,13 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 public class Main extends JFrame {
 
@@ -74,6 +77,33 @@ public class Main extends JFrame {
             var iconUrl = getClass().getClassLoader().getResource("icon.jpg");
             if (iconUrl != null) setIconImage(Toolkit.getDefaultToolkit().getImage(iconUrl));
         } catch (Exception ignored) {}
+
+        // Drag-and-drop JSON file loading
+        setDropTarget(new DropTarget(this, new DropTargetAdapter() {
+            public void drop(DropTargetDropEvent e) {
+                try {
+                    e.acceptDrop(DnDConstants.ACTION_COPY);
+                    @SuppressWarnings("unchecked")
+                    var files = (List<File>) e.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    if (!files.isEmpty()) {
+                        for (File f : files) {
+                            if (f.getName().endsWith(".json")) {
+                                saveData = saveService.loadFromFile(f);
+                                currentFile = f;
+                                SwingUtilities.invokeLater(() -> {
+                                    loadDataToUI();
+                                    statusLabel.setText("已加载: " + f.getName());
+                                });
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(Main.this, "加载失败: " + ex.getMessage(), "错误", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }));
+
         buildMenuBar();
         buildTabs();
         add(statusLabel, BorderLayout.SOUTH);
