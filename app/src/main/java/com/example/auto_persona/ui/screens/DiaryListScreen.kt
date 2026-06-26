@@ -1,5 +1,6 @@
 package com.example.auto_persona.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -26,7 +27,8 @@ fun DiaryListScreen(
     viewModel: SaveEditorViewModel
 ) {
     val saveState by viewModel.saveState.collectAsState()
-    val diary by remember { derivedStateOf { (saveState as? SaveState.Loaded)?.saveData?.data?.diary ?: emptyList() } }
+    val state = saveState as? SaveState.Loaded ?: return
+    val diary = state.saveData.data.diary
 
     Scaffold(
         topBar = {
@@ -47,8 +49,8 @@ fun DiaryListScreen(
             }
         } else {
             LazyColumn(Modifier.fillMaxSize().padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                itemsIndexed(diary, key = { _, e -> e.diaryId }) { index, entry ->
-                    Card(onClick = { navController.navigate(Routes.diaryDetail(index)) }, modifier = Modifier.fillMaxWidth()) {
+                itemsIndexed(diary, key = { _, e -> e.diaryId.ifEmpty { e.hashCode().toString() } }) { index, entry ->
+                    Card(modifier = Modifier.fillMaxWidth().clickable { navController.navigate(Routes.diaryDetail(index)) }) {
                         Column(Modifier.padding(12.dp)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Column(Modifier.weight(1f)) {
